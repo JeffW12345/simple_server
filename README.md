@@ -1,5 +1,4 @@
 # SIMPLE SERVER
-=============
 
 ## Overview
 
