@@ -44,10 +44,5 @@ public class CustomerService {
     public Customer getDetailsForCustomerFromReference(String customerReference) {
         return customerRepository.findById(customerReference).orElse(null);
     }
-
-    public void deleteAllCustomers() {
-        customerRepository.deleteAll();
-        log.info("All customers have been deleted.");
-    }
 }
 
