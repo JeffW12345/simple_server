@@ -4,6 +4,8 @@
 
 This server application is designed to work with the accompanying client application at [simple_client](https://github.com/JeffW12345/simple_client).
 
+There is a demo of the apps [here](https://www.loom.com/share/c5dbbcf20a4c4d70aaa1f0efcdca2532).
+
 ### Features
 
 1. **POST Requests**: Accepts objects representing customers via POST requests and stores those customers in a local SQLite database.
