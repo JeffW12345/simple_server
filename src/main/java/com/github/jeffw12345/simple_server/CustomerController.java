@@ -19,7 +19,7 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<?> processCustomerDetails(@Valid @RequestBody Customer customer) {
+    public ResponseEntity<Customer> processCustomerDetails(@Valid @RequestBody Customer customer) {
         log.info("Received customer with reference: {}", customer.getCustomerReference());
 
         try {
