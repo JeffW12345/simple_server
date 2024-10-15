@@ -1,12 +1,12 @@
 package com.github.jeffw12345.simple_server;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Optional;
-
-
 @RestController
 @RequestMapping("/customers")
 @Slf4j
@@ -19,9 +19,11 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<Customer> processCustomerDetails(@RequestBody Customer customer) {
+    public ResponseEntity<?> processCustomerDetails(@Valid @RequestBody Customer customer) {
+        log.info("Received customer with reference: {}", customer.getCustomerReference());
+
         try {
-            log.info("Received customer with reference: {}", customer.getCustomerReference());
+
 
             Optional<Customer> addedCustomer = Optional.ofNullable(customerService.addCustomerToDatabase(
                     customer.getCustomerReference(),
@@ -43,20 +45,22 @@ public class CustomerController {
                         .body(null);
             }
         } catch (RuntimeException e) {
-            log.error("Error adding customer with reference {}: {}", customer.getCustomerReference(), e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(null);
+            log.error("Error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         }
     }
 
-
     @GetMapping("/search")
     public ResponseEntity<Customer> obtainCustomerFromReference(
-            @RequestParam String customerReference) {
+            @Valid @RequestParam String customerReference) {
         Optional<Customer> customer = Optional.ofNullable(customerService.getDetailsForCustomerFromReference(customerReference));
 
         return customer
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+                .orElseGet(() -> {
+                    log.warn("Customer not found with reference: {}", customerReference);
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(null);
+                });
     }
 }

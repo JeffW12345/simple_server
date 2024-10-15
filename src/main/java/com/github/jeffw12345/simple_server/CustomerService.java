@@ -23,6 +23,7 @@ public class CustomerService {
                                           String country,
                                           String postcode) {
 
+
         Customer customer = new Customer(
                 customerReference,
                 customerName,
@@ -33,6 +34,7 @@ public class CustomerService {
                 country,
                 postcode
         );
+
         try {
             log.info("About to add customer with id: " + customer.getCustomerReference());
             return customerRepository.save(customer);

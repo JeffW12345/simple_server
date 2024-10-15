@@ -9,23 +9,25 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "customer")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
 public class Customer {
 
     @Id
     @Column(name = "customer_reference")
     @JsonProperty("customerReference")
-    @Setter
+    @NotBlank(message = "Customer reference must not be blank")
     private String customerReference;
 
     @Column(name = "customer_name")
     @JsonProperty("customerName")
-    @Setter
+    @NotBlank(message = "Customer name must not be blank")
     private String customerName;
 
     @Column(name = "address_line1")
