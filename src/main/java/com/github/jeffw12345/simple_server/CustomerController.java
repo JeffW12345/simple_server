@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/customers")
@@ -21,7 +23,7 @@ public class CustomerController {
         try {
             log.info("Received customer with reference: {}", customer.getCustomerReference());
 
-            Customer addedCustomer = customerService.addCustomerToDatabase(
+            Optional<Customer> addedCustomer = Optional.ofNullable(customerService.addCustomerToDatabase(
                     customer.getCustomerReference(),
                     customer.getCustomerName(),
                     customer.getAddressLine1(),
@@ -30,23 +32,31 @@ public class CustomerController {
                     customer.getCounty(),
                     customer.getCountry(),
                     customer.getPostcode()
-            );
-            log.info("Customer with id " + customer.getCustomerReference() + " successfully added.");
-            return ResponseEntity.ok(addedCustomer);
+            ));
+
+            if (addedCustomer.isPresent()) {
+                log.info("Customer with reference {} successfully added.", customer.getCustomerReference());
+                return ResponseEntity.status(HttpStatus.CREATED).body(addedCustomer.get());
+            } else {
+                log.error("Customer could not be added with reference: {}", customer.getCustomerReference());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(null);
+            }
         } catch (RuntimeException e) {
-            log.error("Customer with id " + customer.getCustomerReference() + " issue: " + e);
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+            log.error("Error adding customer with reference {}: {}", customer.getCustomerReference(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(null);
         }
     }
 
+
     @GetMapping("/search")
     public ResponseEntity<Customer> obtainCustomerFromReference(
-            @RequestParam(required = true) String customerReference) {
-        Customer customer = customerService.getDetailsForCustomerFromReference(customerReference);
-        if (customer != null) {
-            return ResponseEntity.ok(customer);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+            @RequestParam String customerReference) {
+        Optional<Customer> customer = Optional.ofNullable(customerService.getDetailsForCustomerFromReference(customerReference));
+
+        return customer
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 }
